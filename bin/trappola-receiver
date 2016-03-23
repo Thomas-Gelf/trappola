@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+BEGIN {
+  use Cwd qw( realpath );
+  use File::Basename;
+  use lib dirname(dirname(realpath(__FILE__))) . '/vendorlib';
+  use lib dirname(dirname(realpath(__FILE__))) . '/lib';
+}
+
+use Trappola::Config;
+use Trappola::TrapReceiver;
+
+Trappola::TrapReceiver::register(
+    Config('/etc/trappola/config.ini')
+);
+

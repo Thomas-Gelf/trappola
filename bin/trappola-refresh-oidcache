@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+BEGIN {
+  use Cwd qw( realpath );
+  use File::Basename;
+  use lib dirname(dirname(realpath(__FILE__))) . '/vendorlib';
+  use lib dirname(dirname(realpath(__FILE__))) . '/lib';
+}
+
+use Trappola::Config;
+my $config = Config('/etc/trappola/config.ini');
+
+use Trappola::TrapDb;
+use Trappola::Oidcache;
+
+my $db = new Trappola::TrapDb($config);
+my $cache = new Trappola::Oidcache($db);
+
+$cache->refreshUnresolvedOids()
+

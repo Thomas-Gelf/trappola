@@ -5,13 +5,11 @@ use strict;
 use warnings;
 use NetSNMP::TrapReceiver;
 use Trappola::Trap;
-#use Directory::Queue::Simple;
 use Sys::Syslog;
 use Redis;
 
 our $VERSION = '1.0.0';
 
-# Allows quick setup
 sub register {
     return new Trappola::TrapReceiver(@_);
 }
@@ -30,20 +28,49 @@ sub new {
     return $self;
 }
 
+sub redis {
+    my $self = shift;
+    unless ($self->{'redis'}) {
+        $self->connectToRedis();
+    }
+
+    return $self->{'redis'};
+}
+
+sub connectToRedis {
+    my $self = shift;
+    eval {
+        my $redisHost = $self->config(
+            'redis',
+            'host',
+            'localhost'
+        );
+
+        my $redisPort = $self->config(
+            'redis',
+            'port',
+            '6379'
+        );
+
+        my $socket = sprintf('%s:%d', $redisHost, $redisPort);
+
+        $self->{'redis'} = Redis->new(
+            server    => $socket,
+            reconnect => 2_592_000, # Give up after 30 days
+            every     => 1_000_000
+        );
+        $self->log('info', 'Successfully connected to Redis at ' . $socket);
+        1;
+    } or do {
+        my $e = $@;
+        $self->log('err', 'Failed to connect to Redis: ' . $e);
+    };
+}
+
 sub initializeQueue {
     my $self = shift;
     $self->log('info', 'Ready to set up queue');
-    # TODO: Route trap to different configurable spool directories
-#    my $qdir = $self->config(
-#        'global',
-#        'spool_directory',
-#        '/var/spool/trappola/queue'
-#    );
-#    $self->log('info', 'Preparing queue at %s', $qdir);
-#    $self->{'dirq'} = Directory::Queue::Simple->new(path => $qdir);
-#    $self->{'dirq'}->purge();
-    $self->log('info', 'Preparing redis queue');
- $self->{'redis'} = Redis->new(server => 'icingaweb:6379');
+    $self->redis;
 }
 
 sub config {
@@ -72,16 +99,22 @@ sub receive {
     my ($from, $to, $from_port, $to_port, $proto);
     my ($community, $securityEngineID, $securityName);
     $self->log('err', 'Got a trap');
+    my $redis = $self->redis;
+    unless ($redis) {
+        $self->log('err', 'Cannot handle trap, Redis is not available');
+        return NETSNMPTRAPD_HANDLER_FAIL;
+    }
 
     eval {
         my $trap = Trappola::Trap::fromNetSnmp(@_);
-        # my $name = $self->{'dirq'}->add($trap->serialize);
-        my $name = $self->{'redis'}->lpush('Trap::queue', $trap->serialize);
+        my $name = $self->{'redis'}->lpush('Trappola::queue', $trap->serialize);
         $self->log('debug', 'Added Trap as %s', $name);
-    1;
+        1;
+
     } or do {
         my $e = $@;
-        $self->log('err', 'Failed to parse trap: ' . $e);
+        $self->log('err', 'Failed to handle trap: ' . $e);
+        return NETSNMPTRAPD_HANDLER_FAIL;
     };
 
     return NETSNMPTRAPD_HANDLER_OK;

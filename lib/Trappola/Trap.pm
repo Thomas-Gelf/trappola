@@ -138,6 +138,10 @@ sub fromNetSnmp {
         } elsif ($oid eq '.1.3.6.1.6.3.1.1.4.1.0') {
             $trap->oid($value);
         } else {
+            if ($type == 4) {
+                $value =~ s/^"(.*)"$/$1/;
+            }
+
             $trap->addVarbind($oid, $value, $trap->getTypeName($type));
         }
         if ($oid eq '.1.3.6.1.6.3.18.1.3.0') {
@@ -198,7 +202,7 @@ sub parseReceivedFrom {
             $self->dst_port(int($1));
         }
         $to =~ s/^\[(.+)\]/$1/;
-        $self->dst_address($from);
+        $self->dst_address($to);
     }
 }
 
@@ -348,12 +352,12 @@ if ($oid eq '.1.3.6.1.6.3.1.1.4.1.0') {
             $key = 'src_port' if $key eq 'from_port';
             if ($key eq 'from') {
                 if ($value =~ /^(.+?)\]\:(\d+)\-\>\[(.+?)$/) {
-                    $trap->src_address($1);
-                    $trap->src_port($2);
-                    $trap->dst_address($3);
+                    my ($src_address, $src_port, $dst_address) = ($1, $2, $3);
+                    $trap->src_address($src_address);
+                    $trap->src_port($src_port);
+                    $trap->dst_address($dst_address);
                 } else {
                     $trap->src_address($value);
-                    $trap->dst_address('127.0.0.2');
                 }
             } elsif ($key eq 'v3_sec_engine' or $key eq 'v3_ctx_engine') {
                 $trap->$key(hex2bin($value));

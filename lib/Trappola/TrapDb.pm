@@ -177,7 +177,8 @@ $password = 'trappass';
 }
 
 sub DESTROY {
-
+    my $self = shift;
+    $self->db->disconnect if $self->db;
 }
 
 1;

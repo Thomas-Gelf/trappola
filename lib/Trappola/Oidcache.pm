@@ -25,9 +25,13 @@ sub new {
     return $self;
 }
 
+sub db {
+    $_[0]->{'db'};
+}
+
 sub fetchPersistedOids {
     my $self = shift;
-    %{ $self->{'cache'} } = $self->{'db'}->fetchObjectHash(
+    %{ $self->{'cache'} } = $self->db->fetchObjectHash(
         'Trappola::TrapOid',
         'SELECT oid, short_name, mib_name, description FROM trap_oidcache'
     );
@@ -68,7 +72,6 @@ sub persist {
     my $self = shift;
     my $oid;
     my $obj;
-    my $db = $self->{'db'};
 
     my $short;
     foreach $oid (keys %{ $self->{'cache'} }) {
@@ -76,9 +79,11 @@ sub persist {
         if ($obj->hasBeenModified) {
             $short = $obj->short_name;
 # ??
-            $db->store($obj) unless $short =~ /^enterprises\./;
+            $self->db->store($obj) unless $short =~ /^enterprises\./;
         }
     }
+
+    $self->db->commit;
     return $self;
 }
 

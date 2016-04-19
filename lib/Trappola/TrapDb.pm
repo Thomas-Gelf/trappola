@@ -11,7 +11,11 @@ use Module::Load;
 
 sub new {
     my $class = shift;
-    my $self = {};
+    my $config = shift;
+    my $self = {
+        'config' => $config
+    };
+
     bless $self, $class;
     return $self;
 }
@@ -160,20 +164,28 @@ sub db {
 
 sub connect {
     my $self = shift;
-    my $dsn = 'dbi:mysql:database=trappola;host=localhost';
-    $dsn = 'dbi:mysql:database=trappola;host=services';
-    my $username = 'root';
-    my $password = undef;
+
+    my $host     = $self->config('db', 'host', 'localhost');
+    my $username = $self->config('db', 'username', 'root');
+    my $password = $self->config('db', 'password', undef);
+    my $database = $self->config('db', 'dbname', 'trappola');
+
+    my $dsn = sprintf(
+        'dbi:mysql:database=%s;host=%s',
+        $database,
+        $host
+    );
+
     my %attr = (
         AutoCommit => 0,
         RaiseError => 1
     );
-$username = 'trappola';
-$password = 'trappass';
-#    $self->{'db'}->{AutoCommit} = 0;
-#    $self->{'db'}->{RaiseError} = 1;
 
     $self->{'dbh'} = DBI->connect($dsn, $username, $password, \%attr);
+}
+
+sub config {
+    return shift->{'config'}->get(@_);
 }
 
 sub DESTROY {

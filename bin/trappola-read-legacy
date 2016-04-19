@@ -17,8 +17,8 @@ use Trappola::TrapDb;
 use Trappola::QueueReader;
 use Trappola::TrapHandler;
 
-my $db = new Trappola::TrapDb;
-my $queue = new Trappola::QueueReader('/root/STADT-DATA/var/spool/strap/oracle');
+my $db = new Trappola::TrapDb($config);
+my $queue = new Trappola::QueueReader('/var/spool/strap/oracle');
 my $handler = new Trappola::TrapHandler($db, $queue);
 $handler->dispatchLegacyLoop();
 

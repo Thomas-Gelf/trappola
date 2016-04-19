@@ -91,6 +91,13 @@ sub insertDataObject {
     $obj->setUnmodified;
 }
 
+sub fetchCol {
+    my $self = shift;
+    my $sql = shift;
+    my $sth = $self->execute($sql, @_);
+    return $self->db->selectcol_arrayref($sql);
+}
+
 sub fetchHash {
     my $self = shift;
     my $key = shift;

@@ -19,5 +19,7 @@ use Trappola::Oidcache;
 my $db = new Trappola::TrapDb($config);
 my $cache = new Trappola::Oidcache($db);
 
-$cache->refreshUnresolvedOids()
-
+while (1) {
+    $cache->refreshUnresolvedOids();
+    sleep(600);
+}

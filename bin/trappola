@@ -17,7 +17,7 @@ use Trappola::TrapDb;
 use Trappola::QueueReader;
 use Trappola::TrapHandler;
 
-my $db = new Trappola::TrapDb;
+my $db = new Trappola::TrapDb($config);
 my $queue = new Trappola::QueueReader('/var/spool/trappola/queue');
 my $handler = new Trappola::TrapHandler($db, $queue);
 $handler->dispatchMainLoop();

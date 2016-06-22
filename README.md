@@ -55,9 +55,12 @@ service.
 
 Another involved component is the OID cache resolver. It needs to be running
 on demand or constantly. A Systemd unit file like the following is the preferred
-way to keep it alive:
+way to keep it alive (`/etc/systemd/system/trappola-oid-cache.service`):
 
 ```ini
+[Install]
+WantedBy=multi-user.target
+
 [Unit]
 Description=Trappola OID Cache MIB Resolver
 
@@ -65,6 +68,14 @@ Description=Trappola OID Cache MIB Resolver
 Type=simple
 ExecStart=/usr/local/trappola/bin/trappola-refresh-oidcache
 Restart=on-success
+```
+
+Then please refresh systemd, enable and start the service:
+
+```
+systemctl daemon-reload
+systemctl enable trappola-oid-cache.service
+systemctl start trappola-oid-cache.service
 ```
 
 What are those flags all about?

@@ -38,6 +38,7 @@ Trappola configuration
 Trappola expects it's configuration in `/etc/trappola/config.ini`. It might look
 as follows:
 
+```ini
 [redis]
 host = localhost
 ; port = 6379
@@ -47,6 +48,7 @@ host = localhost
 dbname = trappola
 username = trappola
 password = "x x x"
+```
 
 Redis defaults to localhost:6379, it's config section is not required in case
 this fits your environment. The database is not required by the Trap receiver

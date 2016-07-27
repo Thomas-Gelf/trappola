@@ -98,7 +98,7 @@ sub receive {
     my $varbinds = $_[1];
     my ($from, $to, $from_port, $to_port, $proto);
     my ($community, $securityEngineID, $securityName);
-    $self->log('err', 'Got a trap');
+    $self->log('debug', 'Got a trap');
     my $redis = $self->redis;
     unless ($redis) {
         $self->log('err', 'Cannot handle trap, Redis is not available');

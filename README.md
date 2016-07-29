@@ -122,5 +122,5 @@ systemctl start trappola-oid-cache.service
 And now?
 --------
 
-Please also read about the related web/cli component, it has it's own (repository)[https://github.com/Thomas-Gelf/icingaweb2-module-trappola]
-and (documentation)[https://github.com/Thomas-Gelf/icingaweb2-module-trappola/blob/master/README.md]
+Please also read about the related web/cli component, it has it's own [repository](https://github.com/Thomas-Gelf/icingaweb2-module-trappola)
+and [documentation](https://github.com/Thomas-Gelf/icingaweb2-module-trappola/blob/master/README.md)

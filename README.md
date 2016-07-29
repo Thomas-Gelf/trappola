@@ -1,4 +1,4 @@
-Trappola Trap Reciever
+Trappola Trap Receiver
 ======================
 
 This is the receiving part of Trappola.
